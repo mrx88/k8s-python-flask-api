@@ -1,0 +1,59 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: flaskapi
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: flaskapi
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: flaskapi
+        version: v1
+    spec:
+      containers:
+      - image: acrdev88registry.azurecr.io/k8s-flaskapi:latest
+        imagePullPolicy: Always
+        name: flaskapi
+        # Good practice is to limit cpu / mem usage for containers, but not using in this case
+        resources: {}
+      restartPolicy: Always
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: flaskapi
+  name: flaskapi
+spec:
+  ports:
+  - port: 80
+    protocol: TCP
+    targetPort: 5000
+  selector:
+    app: flaskapi
+  sessionAffinity: None
+  type: ClusterIP
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  annotations:
+    kubernetes.io/ingress.class: nginx
+  name: flaskapi-nginx
+spec:
+  rules:
+    - host: flaskapi.westeurope.cloudapp.azure.com
+      http:
+        paths:
+          - backend:
+              serviceName: flaskapi
+              servicePort: 80
+            path: /
