@@ -2,15 +2,15 @@
 Example for setting up Python API using Flask on Kubernetes
 
 # Requirements
-* Python 3.8 and Flask (check requirements.txt for versions)
-* [Pipenv](https://github.com/pypa/pipenv) (version  11.9.0) virtual environment for python development
+* Python 3.10 and Flask (check requirements.txt for versions)
+* [Pipenv](https://github.com/pypa/pipenv) virtual environment for python development
 * [Helm](https://helm.sh/) for nginx ingress chart deployment (HelmV2 with Tiller used in this case, but consider using helmv3 without tiller)
 
 # Set up Python development environment
 
 ```
 # Set up python virtual environment using pipenv:
-pipenv --three --python=`which python3.8`
+pipenv --three --python=`which python3.10`
 pipenv shell
 
 # Install Flask
@@ -68,7 +68,7 @@ All good!
 
 # Build Docker image
 
-Using official python 3.8 image for Debian Buster (slim version)
+Using official python 3.10 image for Debian Buster (slim version)
 
 ```
 docker build --rm -f "Dockerfile" -t k8s-flaskapi:latest "."
