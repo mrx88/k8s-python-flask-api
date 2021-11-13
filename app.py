@@ -1,4 +1,4 @@
-#!/usr/bin/env python 
+#!/usr/bin/env python
 """Flask Python API example"""
 
 from flask import Flask
