@@ -7,9 +7,11 @@ verify_ssl = true
 pylint = "*"
 pycodestyle = "*"
 flake8 = "*"
+isort = "*"
+black = "*"
 
 [packages]
 flask = "*"
 
 [requires]
-python_version = "3.10"
+python_version = "3.12"
