@@ -1,76 +1,77 @@
 # Introduction
-Example for setting up Python API using Flask on Kubernetes
+Example for setting up Python API using Flask on Kubernetes (Modernized)
 
 # Requirements
-* Python 3.10 and Flask (check requirements.txt for versions)
+* Python 3.12 and Flask (check requirements.txt for versions)
 * [Pipenv](https://github.com/pypa/pipenv) virtual environment for python development
-* [Helm](https://helm.sh/) for nginx ingress chart deployment (HelmV2 with Tiller used in this case, but consider using helmv3 without tiller)
+* [Helm](https://helm.sh/) for nginx ingress chart deployment (Helm v3 recommended)
+* Docker for containerization
+* Kubernetes cluster for deployment
 
 # Set up Python development environment
 
-```
+```bash
 # Set up python virtual environment using pipenv:
-pipenv --three --python=`which python3.10`
+pipenv --python=`which python3.12`
 pipenv shell
 
-# Install Flask
+# Install dependencies
 pipenv install Flask
+
+# Install development dependencies
+pipenv install --dev
 
 # Lock dependencies
 pipenv lock
 
 # requirements.txt for Dockerfile
-pipenv run pip freeze > requirements.txt
+pipenv requirements > requirements.txt
 
-# Validate
-pipenv check
-Checking PEP 508 requirements…
-Passed!
-Checking installed package safety…
-All good!
+# Validate code quality
+pipenv run flake8 app.py
+pipenv run pylint app.py
+
+# Run tests
+pipenv run pytest
 ```
 
 # Test application locally:
 
-```
-# Flask dev server settings
+```bash
+# Flask dev server settings (development)
 export FLASK_ENV=development
+export FLASK_DEBUG=true
 export FLASK_APP=app.py
 
-flask run
- * Serving Flask app "app.py" (lazy loading)
- * Environment: development
- * Debug mode: on
- * Running on http://127.0.0.1:5000/ (Press CTRL+C to quit)
- * Restarting with stat
- * Debugger is active!
- * Debugger PIN: 210-079-390
+# Or run directly
+python app.py
 
-# Test the / endpoint
- curl http://localhost:5000/    
-Success!   
+# The application will start on http://0.0.0.0:5000/
 
-# Test the /ping endpoint
- curl http://localhost:5000/ping
-Ok   
+# Test the / endpoint (JSON response)
+curl http://localhost:5000/
+{"message": "Success!", "status": "ok"}
 
-# Flask dev server logs:
-127.0.0.1 - - [28/Jan/2020 14:05:55] "GET / HTTP/1.1" 200 -
-127.0.0.1 - - [28/Jan/2020 14:07:50] "GET /ping HTTP/1.1" 200 -
+# Test the /ping endpoint (JSON response)  
+curl http://localhost:5000/ping
+{"message": "Ok", "status": "healthy"}
 
-# Validate syntax 
-pipenv check
-Checking PEP 508 requirements…
-Passed!
-Checking installed package safety…
-All good!
+# Test the /health endpoint (for Kubernetes health checks)
+curl http://localhost:5000/health
+{"service": "flask-api", "status": "healthy", "version": "1.0.0"}
+
+# Run tests
+pytest -v
+
+# Validate code quality
+flake8 app.py
 ```
 
 # Build Docker image
 
-Using official python 3.10 image for Debian Buster (slim version)
+Using official Python 3.12 image for Debian Bookworm (slim version) with security improvements
 
-```
+```bash
 docker build --rm -f "Dockerfile" -t k8s-flaskapi:latest "."
 
 ...
